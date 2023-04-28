@@ -5,6 +5,7 @@
 	<meta http-equiv="X-UA-Compatible" content="IE=edge">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.min.js"></script>
+	<script src="https://cdn.jsdelivr.net/gh/ethereum/web3.js@1.0.0-beta.34/dist/web3.js"></script>
 	<title>Document</title>
 	<style>
 		body
@@ -39,32 +40,31 @@
 	<script>
 		let account;
 		const connectMetamask = async () => {
-		  if (window.ethereum != undefined)
+		  if (typeof window.ethereum !== 'undefined')
 		  {
 			const accounts = await ethereum.request({method: "eth_requestAccounts"});
 			account = accounts[0];
 			
 			document.getElementById("accountArea").innerHTML = account;
-		  }
+		  }else { alert("Metamask is not installed!");}
 		}
-
 		const connectContract = async () => {
 		  const ABI = [
+	{
+		"inputs": [],
+		"name": "MyVar",
+		"outputs": [
 			{
-				"inputs": [],
-				"name": "name",
-				"outputs": [
-					{
-						"internalType": "string",
-						"name": "",
-						"type": "string"
-					}
-				],
-				"stateMutability": "view",
-				"type": "function"
-			)];
+				"internalType": "string",
+				"name": "",
+				"type": "string"
+			}
+		],
+		"stateMutability": "view",
+		"type": "function"
+	}];
 	 
-		  const address = "0x293a3D088CA2817405835bafE01B5257946735b9";
+		  const address = "0x118108efB86236AEc4B6f8Ab34BBd246673eb2ff";
 		  const web3 = new Web3(window.ethereum);
 		  window.contract = new web3.eth.Contract(ABI, address);
 		  document.getElementById("contractArea").innerHTML = "Connected to smart contract";
@@ -72,9 +72,16 @@
 		
 
 		const readContract = async () => {
-  			const data = await window.contract.methods.myCity().call();
- 			document.getElementById("dataArea").innerHTML = data;
+  try {
+    const data = await window.contract.methods.MyVar().call();
+	 
+    document.getElementById("dataArea").innerHTML = data;
+  } catch (error) {
+    console.error(error);
+    document.getElementById("dataArea").innerHTML = "Error: " + error.message;
+  }
 }
+
 
 
 	</script>
