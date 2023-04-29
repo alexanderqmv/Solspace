@@ -20,28 +20,36 @@ contract Contract {
         target_amount = target;
         deadline = block.timestamp + dline__seconds;
     }
+
+    // modifier timer() {  require(block.timestamp < deadline,"The fundraising time has passed"); _;  } 
+       
+ 
+    // Events
+    event NewDonate(uint, address, uint);
+    event OwnerWithdrawed(address, uint);
     
-    modifier timer() { require(block.timestamp < deadline,"The fundraising time has passed"); _; } 
-    event NewDonate(uint amount, address from);
-
-    function donate() public payable timer
+    function donate() public payable 
     { 
-        require(msg.value >=  0.1 ether, "Minimum amount 0.1 ETH");
-        amount_count += msg.value;
-        donations[msg.sender] += msg.value;
-        contributors.push(payable(msg.sender));
-        
-        ++totalTransactions;
-        emit NewDonate(msg.value, msg.sender);
-
+        if (block.timestamp >= deadline) { refund(); }
+        else { 
+            require(msg.value >=  0.1 ether, "Minimum amount 0.1 ETH");
+            amount_count += msg.value;
+            donations[msg.sender] += msg.value;
+            contributors.push(payable(msg.sender));
+            ++totalTransactions;
+            emit NewDonate(msg.value, msg.sender, totalTransactions);   
+        }
     }
     function withdraw() public
     { 
         require(owner == msg.sender, "Only an owner can withdraw funds from contract!");
+        require(isClosed(), "Fundraising is not closed yet!");
         payable(owner).transfer(address(this).balance);
+        emit OwnerWithdrawed(owner, address(this).balance);
     }
-    function refund() public timer
+    function refund() public 
     {
+        require(owner == msg.sender, "Only an owner can refund money");
         for (uint i = 0; i < contributors.length; ++i) 
         {
             address payable temp = contributors[i];
@@ -54,4 +62,11 @@ contract Contract {
             }
         }   
     }
+
+
+    function isClosed() public view returns(bool)
+    {
+        return block.timestamp >= deadline ? true : false;
+    }
+
 }
