@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-
-
-
-
 contract Ownable 
 {
     address public owner_;  
+    
     constructor(address ownerOverride ) {  owner_ = ownerOverride == address(0) ? msg.sender : ownerOverride; }
     /* Parent contract */
     
